@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Trailer</title>
+<style>html,body{margin:0;height:100%;background:#000}iframe{display:block;border:0;width:100%;height:100%}</style>
+</head>
+<body>
+<script>
+// index.html opened from file:// sends no Referer, and YouTube refuses such embeds (Error 153); this page is the http origin it embeds instead.
+const v=new URLSearchParams(location.search).get("v")||"";
+if(/^[\w-]{11}$/.test(v)){
+  const f=document.createElement("iframe");
+  f.src=`https://www.youtube-nocookie.com/embed/${v}?autoplay=1&rel=0`;
+  f.allow="autoplay; encrypted-media; picture-in-picture; fullscreen";
+  f.allowFullscreen=true;f.title="Trailer";
+  document.body.append(f);
+}
+</script>
+</body>
+</html>

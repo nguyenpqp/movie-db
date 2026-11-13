@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>International Films 2020–2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,800&family=Be+Vietnam+Pro:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  /* Night cinema: ink-blue ground, amber marquee light; poster card grid */
+  --ink:#0f1420; --panel:#171e2d; --line:#2a3447; --text:#e9ecf2; --muted:#9aa5b8; --amber:#f2b544;
+  --stream:#7cc4e8; --warn:#e87c7c;
+  --display:"Fraunces", Georgia, serif; --body:"Be Vietnam Pro", system-ui, sans-serif;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--ink);color:var(--text);font-family:var(--body);font-size:15px;line-height:1.5}
+header{padding:28px 20px 8px;max-width:2560px;margin:0 auto;display:grid;gap:6px}
+h1{font-family:var(--display);font-weight:800;font-size:clamp(28px,4vw,40px);margin:0;text-wrap:balance;letter-spacing:-.01em}
+h1 span{color:var(--amber)}
+.sub{color:var(--muted);margin:0;max-width:75ch}
+.bar{position:sticky;top:0;z-index:5;background:color-mix(in srgb,var(--ink) 92%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.controls{max-width:2560px;margin:0 auto;padding:12px 20px;display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+input,select{font:inherit;color:var(--text);background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:8px 10px}
+input:focus-visible,select:focus-visible,button:focus-visible,a:focus-visible{outline:2px solid var(--amber);outline-offset:2px}
+#q{flex:1 1 220px;min-width:180px}
+.seg{display:flex;gap:4px;flex-wrap:wrap}
+.seg button{font:inherit;font-size:13px;color:var(--muted);background:transparent;border:1px solid var(--line);border-radius:999px;padding:6px 12px;cursor:pointer}
+.seg button[aria-pressed="true"]{color:var(--ink);background:var(--amber);border-color:var(--amber);font-weight:600}
+.count{color:var(--muted);font-size:13px;font-variant-numeric:tabular-nums;margin-left:auto}
+main{max-width:2560px;margin:0 auto;padding:20px;display:grid;grid-template-columns:repeat(auto-fill,minmax(min(420px,100%),1fr));gap:18px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;overflow:hidden;display:flex}
+.poster{position:relative;flex:none;width:38%;min-height:250px;background:#0b0f18}
+.poster img{position:absolute;inset:0;z-index:1;width:100%;height:100%;object-fit:cover;display:block}
+.ph{position:absolute;inset:0;display:grid;place-content:center;gap:10px;text-align:center;padding:12px;background:linear-gradient(160deg,#1f2a40,#0b0f18)}
+.ph b{font-family:var(--display);font-size:18px;line-height:1.15}
+.ph a{color:var(--amber);font-size:13px}
+.why{position:absolute;z-index:2;left:8px;right:8px;bottom:8px;font-size:12px;font-weight:600;color:#fff;background:rgba(150,40,40,.88);border-radius:8px;padding:4px 8px}
+.body{padding:12px 14px 14px;display:flex;flex-direction:column;gap:7px;flex:1;min-width:0}
+.body h2{font-family:var(--display);font-weight:600;font-size:19px;line-height:1.25;margin:0;text-wrap:balance}
+.meta{display:flex;flex-wrap:wrap;align-items:center;gap:4px 10px;font-size:12.5px;color:var(--muted);font-variant-numeric:tabular-nums}
+.src{font-size:11px;font-weight:600;border:1px solid var(--line);border-radius:999px;padding:2px 9px}
+.src.rap{color:var(--amber)} .src.str{color:var(--stream)}
+.sc{display:flex;align-items:center;gap:14px;font-variant-numeric:tabular-nums}
+.sc .i b{font-size:18px;color:var(--amber)}
+.sc .i small{font-size:11px;color:var(--muted);margin-left:4px}
+.sc .none{font-size:14px;font-weight:600;color:var(--muted)}
+.ring{flex:none;display:block}
+.chips{display:flex;flex-wrap:wrap;gap:4px}
+.chips span{font-size:11.5px;color:#cdd3de;border:1px solid var(--line);border-radius:999px;padding:1px 8px}
+.desc{font-size:13px;margin:0;color:#cdd3de;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
+.who{font-size:12.5px;color:var(--muted);margin:0}
+.who b{color:var(--text);font-weight:500}
+.acts{display:flex;gap:8px;margin-top:auto;padding-top:6px}
+.acts a,.acts button{flex:1;text-align:center;text-decoration:none;font:inherit;font-size:13px;font-weight:600;border-radius:8px;padding:8px;cursor:pointer}
+.tr{background:var(--amber);color:var(--ink);border:0}
+.im{border:1px solid var(--line);color:var(--text);background:transparent}
+.empty{grid-column:1/-1;color:var(--muted);text-align:center;padding:40px}
+.pager{max-width:2560px;margin:0 auto;padding:4px 20px;display:flex;flex-wrap:wrap;gap:6px;align-items:center;justify-content:center}
+.pager button{font:inherit;font-size:13px;min-width:36px;color:var(--text);background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:6px 10px;cursor:pointer;font-variant-numeric:tabular-nums}
+.pager button[aria-current="page"]{background:var(--amber);color:var(--ink);border-color:var(--amber);font-weight:600}
+.pager button:disabled{opacity:.4;cursor:default}
+.pager span{color:var(--muted)}
+footer{max-width:2560px;margin:0 auto;padding:4px 20px 32px;color:var(--muted);font-size:12.5px}
+footer a{color:var(--muted)}
+dialog{border:1px solid var(--line);border-radius:12px;background:var(--panel);color:var(--text);padding:0;width:min(960px,94vw)}
+dialog::backdrop{background:rgba(0,0,0,.75)}
+.vid{position:relative;aspect-ratio:16/9;background:#000}
+.vid iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+.dbar{display:flex;gap:10px;align-items:center;padding:10px 14px}
+.dbar b{flex:1;font-family:var(--display)}
+.dbar a,.dbar button{font:inherit;font-size:13px;color:var(--text);background:transparent;border:1px solid var(--line);border-radius:8px;padding:6px 10px;cursor:pointer;text-decoration:none}
+@media (max-width:420px){main{gap:10px;padding:12px}.poster{width:34%;min-height:200px}.body h2{font-size:16px}.desc{display:none}}
+@media (prefers-reduced-motion:no-preference){.card{transition:transform .15s}.card:hover{transform:translateY(-2px)}}
+</style>
+</head>
+<body>
+<header>
+  <h1>International Films <span id="years">2020–2026</span></h1>
+  <p class="sub">Every film with a US theatrical release (5,000+ IMDb votes; 2,000+ for the current year; 500+ for Chinese-language films) plus standalone streaming films with 10,000+ votes, selected automatically from TMDB data. Horror, documentaries, faith-based, US sports, US politics and re-releases are excluded. Choose "Excluded" to see the dropped films and why. IMDb ratings as of <span id="asof"></span>. All other details come from TMDB.</p>
+</header>
+<div class="bar"><div class="controls">
+  <label for="q" hidden>Search films</label>
+  <input id="q" type="search" placeholder="Search title, cast or director…">
+  <div class="seg" id="yr" role="group" aria-label="Year"></div>
+  <div class="seg" id="src" role="group" aria-label="Release"></div>
+  <label for="genre" hidden>Genre</label>
+  <select id="genre"><option value="">All genres</option></select>
+  <label for="sort" hidden>Sort</label>
+  <select id="sort">
+    <option value="r">Highest IMDb rating</option>
+    <option value="ts">Highest TMDB score</option>
+    <option value="v">Most votes</option>
+    <option value="rt">Longest</option>
+    <option value="rs">Shortest</option>
+    <option value="d">Newest</option>
+    <option value="t">Title A–Z</option>
+  </select>
+  <div class="seg" id="lst" role="group" aria-label="List"></div>
+  <span class="count" id="count"></span>
+</div></div>
+<nav class="pager" aria-label="Pages"></nav>
+<main id="grid"></main>
+<nav class="pager" aria-label="Pages"></nav>
+<dialog id="dlg"><div class="vid" id="vid"></div><div class="dbar"><b id="dtitle"></b><a id="dyt" target="_blank" rel="noopener">Open on YouTube</a><button type="button" id="dclose">Close</button></div></dialog>
+<footer>Descriptions are TMDB overviews. Sources: <a href="https://www.themoviedb.org">TMDB</a> (film list, release dates, genres, runtime, directors, cast, posters, trailers, TMDB score), <a href="https://developer.imdb.com/non-commercial-datasets/">IMDb Non-Commercial Datasets</a> (IMDb rating and votes only). This product uses the TMDB API but is not endorsed or certified by TMDB.</footer>
+<script src="res/films.js"></script>
+<script>
+(async()=>{
+const DATA=window.FILMS;
+if(!DATA){document.getElementById("grid").innerHTML=`<p class="empty">Could not load res/films.js. Run python scripts\\build_data.py to build it.</p>`;return}
+const KEEP=DATA.keep, DROP=DATA.drop;
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const fmt=d=>d?new Date(d+"T00:00:00").toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"}):"";
+const TODAY=DATA.built;
+const YEARS=[...new Set([...KEEP,...DROP].map(f=>String(f.y)))].sort();
+$("#years").textContent=`${YEARS[0]}–${YEARS[YEARS.length-1]}`;document.title=`International Films ${$("#years").textContent}`;$("#asof").textContent=fmt(TODAY);
+const LOCAL=location.protocol==="file:"||location.hostname==="localhost";
+const ytSrc=k=>location.protocol==="file:"?`https://nguyenpqp.github.io/movie-db/player.html?v=${k}`:`https://www.youtube-nocookie.com/embed/${k}?autoplay=1&rel=0`;
+let src="All",yr="All",lst="Selected";
+const srcs=["All","Theatrical",...[...new Set(KEEP.map(f=>f.src))].filter(s=>s!=="Theatrical").sort()];
+function seg(id,list,get,set){$(id).innerHTML=list.map(s=>`<button type="button" aria-pressed="${s===get()}">${s}</button>`).join("");$(id).addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;set(b.textContent);[...$(id).children].forEach(x=>x.setAttribute("aria-pressed",x===b));render()})}
+seg("#yr",["All",...YEARS],()=>yr,v=>yr=v);
+seg("#src",srcs,()=>src,v=>src=v);
+seg("#lst",["Selected","Excluded"],()=>lst,v=>lst=v);
+const genres=[...new Set([...KEEP,...DROP].flatMap(f=>f.g))].sort((a,b)=>a.localeCompare(b,"en"));
+$("#genre").insertAdjacentHTML("beforeend",genres.map(g=>`<option>${g}</option>`).join(""));
+const kv=n=>n>=1e6?(n/1e6).toFixed(1)+"M":n>=1e3?Math.round(n/1e3)+"K":String(n);
+function ring(v){
+  const c=2*Math.PI*15, col=v>=70?"#21d07a":v>=40?"#d2d531":"#db2360";
+  return `<svg class="ring" width="32" height="32" viewBox="0 0 36 36" role="img" aria-label="TMDB user score ${v}%"><title>TMDB user score ${v}%</title><circle cx="18" cy="18" r="17" fill="#081c22"/><circle cx="18" cy="18" r="15" fill="none" stroke="${col}33" stroke-width="3"/><circle cx="18" cy="18" r="15" fill="none" stroke="${col}" stroke-width="3" stroke-linecap="round" stroke-dasharray="${c*v/100} ${c}" transform="rotate(-90 18 18)"/><text x="18" y="22.5" text-anchor="middle" font-size="12" font-weight="700" fill="#fff" font-family="system-ui,sans-serif">${v}</text></svg>`;
+}
+function card(f,i){
+  const img=f.p?`https://image.tmdb.org/t/p/w500${f.p}`:"";
+  const thumb=f.p?`https://image.tmdb.org/t/p/w342${f.p}`:"";
+  const page=f.id.startsWith("tt")?`https://www.imdb.com/title/${f.id}/`:`https://www.themoviedb.org/movie/${f.tm}`;
+  const up=f.date>TODAY;
+  const imdb=f.r?`<span class="i" title="IMDb rating${f.nv?`, ${f.nv.toLocaleString("en-US")} votes`:""}"><b>★ ${f.r.toFixed(1)}</b>${f.nv?`<small>IMDb · ${kv(f.nv)}</small>`:""}</span>`:`<span class="none">${up?"Upcoming":"No rating"}</span>`;
+  let tr="";
+  if(f.yt) tr=`<button type="button" class="tr" data-yt="${f.yt}" data-t="${esc(f.t)}">▶ Trailer</button>`;
+
+  return `<article class="card">
+  <div class="poster">
+    <div class="ph"><b>${esc(f.t)}</b>${img?`<a href="${img}" target="_blank" rel="noopener">View poster</a>`:""}</div>
+    ${LOCAL?`<img src="res/posters/${f.id}.jpg" data-alt="${thumb}" alt="Poster ${esc(f.t)}" loading="lazy" onerror="if(this.dataset.alt&&this.src!==this.dataset.alt){this.src=this.dataset.alt}else{this.remove()}">`:(thumb?`<img src="${thumb}" alt="Poster ${esc(f.t)}" loading="lazy" onerror="this.remove()">`:"")}
+    ${f.why?`<span class="why">Excluded: ${esc(f.why)}</span>`:""}
+  </div>
+  <div class="body">
+    <div class="meta"><span class="src ${f.src==="Theatrical"?"rap":"str"}">${esc(f.src)}</span><span>${fmt(f.date)}</span>${f.rt?`<span>${Math.floor(f.rt/60)?Math.floor(f.rt/60)+"h ":""}${f.rt%60}m</span>`:""}</div>
+    <h2>${esc(f.t)}</h2>
+    <div class="sc">${imdb}${f.ts!=null?ring(f.ts):""}</div>
+    <div class="chips">${f.g.map(g=>`<span>${esc(g)}</span>`).join("")}</div>
+    ${f.dr?`<p class="who"><b>Director</b> ${esc(f.dr)}</p>`:""}
+    <p class="who"><b>Cast</b> ${esc(f.c)}</p>
+    <p class="desc" title="${esc(f.d)}">${esc(f.d)}</p>
+    <div class="acts">${tr}<a class="im" href="${page}" target="_blank" rel="noopener">${f.id.startsWith("tt")?"IMDb":"TMDB"}</a></div>
+  </div></article>`;
+}
+function render(){
+  const q=$("#q").value.trim().toLowerCase(), g=$("#genre").value, s=$("#sort").value;
+  const base=lst==="Selected"?KEEP:DROP;
+  let list=base.filter(f=>(src==="All"||f.src===src)&&(yr==="All"||String(f.y)===yr)&&(!g||f.g.includes(g))&&(!q||(f.t+" "+f.c+" "+(f.dr||"")).toLowerCase().includes(q)));
+  list.sort(s==="r"?(a,b)=>(b.r||0)-(a.r||0):s==="v"?(a,b)=>(b.nv||0)-(a.nv||0):s==="ts"?(a,b)=>(b.ts??-1)-(a.ts??-1):s==="rt"?(a,b)=>(b.rt||0)-(a.rt||0):s==="rs"?(a,b)=>(a.rt||9999)-(b.rt||9999):s==="d"?(a,b)=>b.date.localeCompare(a.date):(a,b)=>a.t.localeCompare(b.t));
+  const pages=Math.max(1,Math.ceil(list.length/PER)); if(page>pages)page=pages;
+  const shown=list.slice((page-1)*PER,page*PER);
+  $("#grid").innerHTML=list.length?shown.map(card).join(""):`<p class="empty">No films match these filters. Try removing one.</p>`;
+  const from=list.length?(page-1)*PER+1:0, to=Math.min(page*PER,list.length);
+  $("#count").textContent=`${from}–${to} of ${list.length} films`;
+  pager(pages);
+}
+function pager(pages){
+  const nums=[];for(let i=1;i<=pages;i++){if(i===1||i===pages||Math.abs(i-page)<=2)nums.push(i);else if(nums[nums.length-1]!=="…")nums.push("…")}
+  const html=pages<2?"":`<button type="button" data-p="${page-1}" ${page===1?"disabled":""}>‹ Prev</button>`+nums.map(n=>n==="…"?`<span>…</span>`:`<button type="button" data-p="${n}" aria-current="${n===page?"page":"false"}">${n}</button>`).join("")+`<button type="button" data-p="${page+1}" ${page===pages?"disabled":""}>Next ›</button>`;
+  document.querySelectorAll(".pager").forEach(p=>p.innerHTML=html);
+}
+const PER=100; let page=1;
+["#q","#genre","#sort"].forEach(id=>$(id).addEventListener("input",()=>{page=1;render()}));
+document.querySelectorAll(".seg").forEach(el=>el.addEventListener("click",()=>{page=1},true));
+document.querySelectorAll(".pager").forEach(p=>p.addEventListener("click",e=>{const b=e.target.closest("button[data-p]");if(!b||b.disabled)return;page=+b.dataset.p;render();window.scrollTo({top:document.querySelector("header").offsetHeight,behavior:"instant"})}));
+$("#grid").addEventListener("click",e=>{
+  const b=e.target.closest("button[data-yt]");if(!b)return;
+  $("#vid").innerHTML=`<iframe src="${ytSrc(b.dataset.yt)}" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen title="Trailer"></iframe>`;
+  $("#dtitle").textContent=b.dataset.t;$("#dyt").href=`https://www.youtube.com/watch?v=${b.dataset.yt}`;$("#dlg").showModal();
+});
+function closeDlg(){$("#vid").innerHTML="";$("#dlg").close()}
+$("#dclose").addEventListener("click",closeDlg);
+$("#dlg").addEventListener("close",()=>{$("#vid").innerHTML=""});
+render();
+})();
+</script>
+</body>
+</html>

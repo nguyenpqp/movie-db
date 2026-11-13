@@ -1,0 +1,5 @@
+# local data (re-downloadable) and secrets
+res/data/
+res/posters/
+scripts/tmdb_key.txt
+__pycache__/
