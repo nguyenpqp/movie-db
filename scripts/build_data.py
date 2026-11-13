@@ -14,6 +14,7 @@ import datetime
 import gzip
 import json
 import pathlib
+import re
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 RES = ROOT / "res"
@@ -105,12 +106,14 @@ def main():
 
         directors = as_list(m.get("directors"))
         score = round(m["score"] * 10) if m.get("score") else None
+        imdb, trailer, poster = (m.get(k) or "" for k in ("imdb", "trailer", "poster"))
         rec = dict(
-            y=year, id=m.get("imdb") or f"t{m['id']}", tm=m["id"], t=m["title"], date=date, src=kind,
+            y=year, id=imdb if re.fullmatch(r"tt\d+", imdb) else f"t{int(m['id'])}", tm=int(m["id"]), t=m["title"], date=date, src=kind,
             g=genres[:3], r=rating, nv=votes, ts=score or None, d=m.get("overview") or "",
             c=", ".join(as_list(m.get("cast"))[:3]),
             dr=", ".join(directors[:3]) + (" et al." if len(directors) > 3 else ""),
-            rt=m.get("runtime") or None, yt=m.get("trailer") or "", p=m.get("poster") or "", why=reason,
+            rt=m.get("runtime") or None, yt=trailer if re.fullmatch(r"[\w-]{11}", trailer) else "",
+            p=poster if re.fullmatch(r"/[\w.-]+", poster) else "", why=reason,
         )
         (drop if reason else keep).append(rec)
 
