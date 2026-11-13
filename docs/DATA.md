@@ -17,7 +17,7 @@ res/films.js  ──►  index.html (<script src>, so file:// works)
 For each year, TMDB `/discover/movie` is queried for:
 
 - **US theatrical:** `region=US`, `with_release_type=2|3` (limited or wide) and ≥ 30 TMDB votes, up to 25 pages.
-- **Chinese-language films in US theaters:** the same filter with `with_original_language=zh`, up to 5 pages.
+- **Chinese-language films in US theaters:** the same filter with `with_original_language=zh` and no TMDB vote minimum, up to 5 pages.
 - **Streaming films:** `watch_region=US` on Netflix, Apple TV+, Prime Video, Disney+, Hulu and Paramount+ (flatrate), premiering that year, ≥ 100 TMDB votes, up to 15 pages.
 - **Upcoming:** current year only, US theatrical releases from today to Dec 31, sorted by popularity.
 
