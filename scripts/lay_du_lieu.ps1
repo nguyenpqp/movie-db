@@ -2,9 +2,9 @@
 #  Fetch film data from TMDB (+ official IMDb ratings dataset)
 #  Usage: put your TMDB API key in scripts\tmdb_key.txt (one line, never committed)
 #         then double-click lay_du_lieu.bat
-#  Optional: lay_du_lieu.bat 2020 2022   (year range; default 2016 to this year; add -Refresh to re-download saved years)
+#  Optional: lay_du_lieu.bat 2020 2022   (year range; default 2010 to this year; add -Refresh to re-download saved years)
 # ==========================================================
-param([int]$FromYear = 2016, [int]$ToYear = (Get-Date).Year, [switch]$Refresh)
+param([int]$FromYear = 2010, [int]$ToYear = (Get-Date).Year, [switch]$Refresh)
 
 $ErrorActionPreference = "Stop"
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12

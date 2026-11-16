@@ -21,7 +21,7 @@ ROOT = pathlib.Path(__file__).resolve().parent.parent
 RES = ROOT / "res"
 DATA = RES / "data"
 THIS_YEAR = datetime.date.today().year
-YEARS = range(2016, THIS_YEAR + 1)
+YEARS = range(2010, THIS_YEAR + 1)
 TODAY = datetime.date.today().isoformat()
 VN_MIN_VOTES = 20
 

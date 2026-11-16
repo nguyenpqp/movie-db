@@ -1,6 +1,6 @@
-# MovieDB — International Films from 2016
+# MovieDB — International Films from 2010
 
-A browsable catalogue of films released in US theaters (plus standout standalone streaming films) and Vietnamese films released in Vietnamese cinemas, from 2016 to the current year, filtered to titles with international appeal. Horror, documentaries and US-domestic genres are excluded.
+A browsable catalogue of films released in US theaters (plus standout standalone streaming films) and Vietnamese films released in Vietnamese cinemas, from 2010 to the current year, filtered to titles with international appeal. Horror, documentaries and US-domestic genres are excluded.
 
 **Live site:** https://nguyenpqp.github.io/movie-db/
 
@@ -39,7 +39,7 @@ docs/
 ## Quick start (Windows)
 
 1. Put your TMDB API key (v3) in `scripts\tmdb_key.txt`. It's one line and is git-ignored.
-2. `scripts\lay_du_lieu.bat` downloads the data. The default range is 2016 to the current year. To download only some years, run e.g. `lay_du_lieu.bat 2024 2025`. `build_data.py` uses only 2016 to the current year.
+2. `scripts\lay_du_lieu.bat` downloads the data. The default range is 2010 to the current year. To download only some years, run e.g. `lay_du_lieu.bat 2024 2025`. `build_data.py` uses only 2010 to the current year.
 3. `python scripts\build_data.py` rebuilds `res\films.js`.
 4. Optionally, `scripts\tai_poster.bat` downloads posters for offline use.
 5. Open `index.html` in a browser. No web server is needed.
