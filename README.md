@@ -1,17 +1,17 @@
-# MovieDB — International Films from 2020
+# MovieDB — International Films from 2016
 
-A browsable catalogue of films released in US theaters (plus standout standalone streaming films) from 2020 to the current year, filtered to titles with international appeal. Horror, documentaries and US-domestic genres are excluded.
+A browsable catalogue of films released in US theaters (plus standout standalone streaming films) and Vietnamese films released in Vietnamese cinemas, from 2016 to the current year, filtered to titles with international appeal. Horror, documentaries and US-domestic genres are excluded.
 
 **Live site:** https://nguyenpqp.github.io/movie-db/
 
-Each film card shows the title, release date, runtime, genres, IMDb rating and votes, TMDB score, director, main cast and description. It also has a trailer that plays in the page and a poster. You can filter by year, release type (theatrical or streaming platform), genre and text search, sort by several fields, and switch to the **Excluded** list to see dropped films with the reason. The page shows 100 films at a time.
+Each film card shows the title, release date, runtime, genres, IMDb rating and votes, TMDB score, director, main cast and description. It also has a trailer that plays in the page and a poster. You can filter by year, release type (US theatrical, Vietnam theatrical or streaming platform), genre and text search, sort by several fields, and switch to the **Excluded** list to see dropped films with the reason. The page shows 100 films at a time.
 
 ## Data sources
 
 | What | Source |
 |---|---|
 | IMDb rating, IMDb votes | [IMDb Non-Commercial Datasets](https://developer.imdb.com/non-commercial-datasets/) (`title.ratings.tsv.gz`) |
-| Everything else: film list, US release dates, release type, genres, runtime, description, director, cast, poster, trailer, TMDB score | [TMDB](https://www.themoviedb.org) |
+| Everything else: film list, US and Vietnam release dates, release type, genres, runtime, description, director, cast, poster, trailer, TMDB score | [TMDB](https://www.themoviedb.org) |
 
 This product uses the TMDB API but is not endorsed or certified by TMDB.
 
@@ -39,7 +39,7 @@ docs/
 ## Quick start (Windows)
 
 1. Put your TMDB API key (v3) in `scripts\tmdb_key.txt`. It's one line and is git-ignored.
-2. `scripts\lay_du_lieu.bat` downloads the data. The default range is 2020 to the current year. To download only some years, run e.g. `lay_du_lieu.bat 2024 2025`. `build_data.py` uses only 2020 to the current year.
+2. `scripts\lay_du_lieu.bat` downloads the data. The default range is 2016 to the current year. To download only some years, run e.g. `lay_du_lieu.bat 2024 2025`. `build_data.py` uses only 2016 to the current year.
 3. `python scripts\build_data.py` rebuilds `res\films.js`.
 4. Optionally, `scripts\tai_poster.bat` downloads posters for offline use.
 5. Open `index.html` in a browser. No web server is needed.

@@ -4,6 +4,7 @@
 
 ```
 lay_du_lieu.ps1  ──►  res/data/phim_<year>.json  (TMDB)
+                      res/data/phim_vn_<year>.json  (TMDB, Vietnamese films)
                       res/data/title.ratings.tsv.gz  (IMDb)
                               │
 build_data.py  ◄── res/exclusions.json, res/extra_films.json
@@ -20,6 +21,7 @@ For each year, TMDB `/discover/movie` is queried for:
 - **Chinese-language films in US theaters:** the same filter with `with_original_language=zh` and no TMDB vote minimum, up to 5 pages.
 - **Streaming films:** `watch_region=US` on Netflix, Apple TV+, Prime Video, Disney+, Hulu and Paramount+ (flatrate), premiering that year, ≥ 100 TMDB votes, up to 15 pages.
 - **Upcoming:** current year only, US theatrical releases from today to Dec 31, sorted by popularity.
+- **Vietnamese films** (saved separately in `phim_vn_<year>.json`): `with_original_language=vi`, both by VN theatrical/premiere date (`region=VN`, `with_release_type=1|2|3`) and by primary release date, up to 10 pages each. TMDB often has no typed VN release date, so both queries are needed.
 
 Each candidate's details (`/movie/{id}` with release dates, credits, videos and watch providers) are cached in `res/data/cache/{id}.json`. Delete a cache file to re-download that film.
 
@@ -27,6 +29,7 @@ Each candidate's details (`/movie/{id}` with release dates, credits, videos and 
 
 - **Theatrical:** has a US limited or wide release date. Re-releases are ignored: dates earlier than the film's primary year − 1 don't count. The first such date becomes the release date and decides the year.
   - A film with only a limited release, plus a digital release within 21 days on one of the streamers above, is counted as a **streaming original** (e.g. *Netflix*).
+- **Vietnam:** any Vietnamese-language film. The release date is the first VN limited or wide date. If there is none, the first VN premiere date is used. If the film has no VN dates at all, the TMDB primary release date is used. A film with only VN digital/TV dates is dropped.
 - **Streaming:** no US theatrical date, but available on one of the streamers above.
 - Anything else is dropped.
 
@@ -38,12 +41,14 @@ Each candidate's details (`/movie/{id}` with release dates, credits, videos and 
 | Theatrical, current year | 2,000 |
 | Theatrical, Chinese-language | 500 |
 | Theatrical, releasing from Oct 1 of the current year | none if TMDB popularity ≥ 7 (shown as *Upcoming*) |
+| Vietnam | 20 |
 | Streaming | 10,000 |
 
 ### 4. Exclusions (shown in the *Excluded* list with a reason)
 
 - **Automatic, by TMDB genre:** Horror, Documentary (incl. concert films), TV Movie.
-- **By hand** (`res/exclusions.json`, matched by title):
+- **Automatic, Vietnam only:** runtime under 40 minutes (shorts).
+- **By hand** (`res/exclusions.json`, matched by `"Title (year)"`, or by title alone for every year):
   - Faith-based
   - US sports (American football, baseball, basketball)
   - US politics
@@ -58,12 +63,12 @@ To exclude or restore a film, edit `res/exclusions.json` and rebuild. TMDB tags 
 
 | Field | Meaning | Source |
 |---|---|---|
-| `y` | year (from the US release date) | TMDB |
+| `y` | year (from the US or VN release date) | TMDB |
 | `id` | IMDb id (`tt…`), or `t<tmdbid>` if none | TMDB |
 | `tm` | TMDB id | TMDB |
 | `t` | title | TMDB |
-| `date` | US release date (theatrical) or premiere date (streaming) | TMDB |
-| `src` | `Theatrical` or the streaming platform | TMDB |
+| `date` | US release date (theatrical), VN release date (Vietnam) or premiere date (streaming) | TMDB |
+| `src` | `Theatrical`, `Vietnam` or the streaming platform | TMDB |
 | `g` | up to 3 genres | TMDB |
 | `r`, `nv` | IMDb rating, IMDb votes | IMDb dataset |
 | `ts` | TMDB user score (%) | TMDB |

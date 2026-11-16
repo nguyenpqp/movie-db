@@ -2,9 +2,9 @@
 #  Fetch film data from TMDB (+ official IMDb ratings dataset)
 #  Usage: put your TMDB API key in scripts\tmdb_key.txt (one line, never committed)
 #         then double-click lay_du_lieu.bat
-#  Optional: lay_du_lieu.bat 2020 2022   (year range; default 2020 to this year; add -Refresh to re-download saved years)
+#  Optional: lay_du_lieu.bat 2020 2022   (year range; default 2016 to this year; add -Refresh to re-download saved years)
 # ==========================================================
-param([int]$FromYear = 2020, [int]$ToYear = (Get-Date).Year, [switch]$Refresh)
+param([int]$FromYear = 2016, [int]$ToYear = (Get-Date).Year, [switch]$Refresh)
 
 $ErrorActionPreference = "Stop"
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
@@ -40,10 +40,63 @@ function Discover($query, $maxPages) {
   return $ids
 }
 
+function Get-Film($id, [switch]$NeedVn) {
+  $cache = Join-Path $cacheDir "$id.json"
+  if ((Test-Path $cache) -and -not $Refresh) {
+    $m = Get-Content $cache -Raw -Encoding UTF8 | ConvertFrom-Json
+    if (-not $NeedVn -or $m.PSObject.Properties.Name -contains "vn") { return $m }
+  }
+  $m = Get-Tmdb "/movie/$id" "language=en-US&append_to_response=release_dates,credits,videos,watch/providers"
+  if ($m -eq $null) { return $null }
+  $us = @($m.release_dates.results | Where-Object { $_.iso_3166_1 -eq "US" } | ForEach-Object { $_.release_dates } | ForEach-Object { @{ t = $_.type; d = $_.release_date } })
+  $vn = @($m.release_dates.results | Where-Object { $_.iso_3166_1 -eq "VN" } | ForEach-Object { $_.release_dates } | ForEach-Object { @{ t = $_.type; d = $_.release_date } })
+  $tr = @($m.videos.results | Where-Object { $_.site -eq "YouTube" -and $_.type -eq "Trailer" } | Sort-Object -Property official -Descending)
+  $prov = @()
+  try { $prov = @($m.'watch/providers'.results.US.flatrate | ForEach-Object { $_.provider_name }) } catch {}
+  $rec = [ordered]@{
+    id = $m.id; imdb = $m.imdb_id; title = $m.title; orig = $m.original_title; lang = $m.original_language
+    date = $m.release_date; genres = @($m.genres | ForEach-Object { $_.name }); overview = $m.overview
+    runtime = $m.runtime; countries = @($m.production_countries | ForEach-Object { $_.iso_3166_1 })
+    us = $us; vn = $vn; cast = @($m.credits.cast | Select-Object -First 3 | ForEach-Object { $_.name })
+    directors = @($m.credits.crew | Where-Object { $_.job -eq "Director" } | ForEach-Object { $_.name })
+    trailer = $(if ($tr.Count -gt 0) { $tr[0].key } else { "" }); poster = $m.poster_path
+    prov = $prov; votes = $m.vote_count; score = $m.vote_average; pop = $m.popularity
+  }
+  $m = [pscustomobject]$rec
+  ($m | ConvertTo-Json -Depth 5 -Compress) | Out-File -FilePath $cache -Encoding UTF8
+  return $m
+}
+
+function Save-Year($ids, $out, $label, [switch]$NeedVn) {
+  $ids = $ids | Select-Object -Unique
+  Write-Host "  $label : $($ids.Count) candidates, fetching details..."
+  $list = New-Object System.Collections.ArrayList
+  $n = 0
+  foreach ($id in $ids) {
+    $n++
+    $m = Get-Film $id -NeedVn:$NeedVn
+    if ($m -ne $null) { [void]$list.Add($m) }
+    if ($n % 50 -eq 0) { Write-Host "  ... $n / $($ids.Count)" }
+  }
+  ($list | ConvertTo-Json -Depth 5 -Compress) | Out-File -FilePath $out -Encoding UTF8
+  Write-Host "  Done $label : $($list.Count) films"
+}
+
 $providers = "8|350|9|119|337|15|531"   # Netflix, Apple TV+, Prime Video, Disney+, Hulu, Paramount+
 $today = (Get-Date).ToString("yyyy-MM-dd")
 
 for ($y = $FromYear; $y -le $ToYear; $y++) {
+  # Vietnamese-language films. TMDB often has no typed VN release date, so also query by primary release date.
+  $outVn = Join-Path $data "phim_vn_$y.json"
+  if ((Test-Path $outVn) -and -not $Refresh) { Write-Host "Vietnam $y already downloaded, skipping." }
+  else {
+    Write-Host "=== Vietnam $y ==="
+    $vnIds  = @()
+    $vnIds += Discover "region=VN&with_release_type=1|2|3&release_date.gte=$y-01-01&release_date.lte=$y-12-31&with_original_language=vi&sort_by=popularity.desc&include_adult=false" 10
+    $vnIds += Discover "with_original_language=vi&primary_release_date.gte=$y-01-01&primary_release_date.lte=$y-12-31&sort_by=popularity.desc&include_adult=false" 10
+    Save-Year $vnIds $outVn "Vietnam $y" -NeedVn
+  }
+
   $out = Join-Path $data "phim_$y.json"
   if ((Test-Path $out) -and -not $Refresh) { Write-Host "Year $y already downloaded, skipping."; continue }
   Write-Host "=== $y ==="
@@ -59,39 +112,7 @@ for ($y = $FromYear; $y -le $ToYear; $y++) {
   if ($y -eq (Get-Date).Year) {
     $ids += Discover "region=US&with_release_type=2|3&release_date.gte=$today&release_date.lte=$y-12-31&sort_by=popularity.desc&include_adult=false" 3
   }
-  $ids = $ids | Select-Object -Unique
-  Write-Host "  $($ids.Count) candidates, fetching details..."
-
-  $list = New-Object System.Collections.ArrayList
-  $n = 0
-  foreach ($id in $ids) {
-    $n++
-    $cache = Join-Path $cacheDir "$id.json"
-    if ((Test-Path $cache) -and -not $Refresh) { $m = Get-Content $cache -Raw -Encoding UTF8 | ConvertFrom-Json }
-    else {
-      $m = Get-Tmdb "/movie/$id" "language=en-US&append_to_response=release_dates,credits,videos,watch/providers"
-      if ($m -eq $null) { continue }
-      $us = @($m.release_dates.results | Where-Object { $_.iso_3166_1 -eq "US" } | ForEach-Object { $_.release_dates } | ForEach-Object { @{ t = $_.type; d = $_.release_date } })
-      $tr = @($m.videos.results | Where-Object { $_.site -eq "YouTube" -and $_.type -eq "Trailer" } | Sort-Object -Property official -Descending)
-      $prov = @()
-      try { $prov = @($m.'watch/providers'.results.US.flatrate | ForEach-Object { $_.provider_name }) } catch {}
-      $rec = [ordered]@{
-        id = $m.id; imdb = $m.imdb_id; title = $m.title; orig = $m.original_title; lang = $m.original_language
-        date = $m.release_date; genres = @($m.genres | ForEach-Object { $_.name }); overview = $m.overview
-        runtime = $m.runtime; countries = @($m.production_countries | ForEach-Object { $_.iso_3166_1 })
-        us = $us; cast = @($m.credits.cast | Select-Object -First 3 | ForEach-Object { $_.name })
-        directors = @($m.credits.crew | Where-Object { $_.job -eq "Director" } | ForEach-Object { $_.name })
-        trailer = $(if ($tr.Count -gt 0) { $tr[0].key } else { "" }); poster = $m.poster_path
-        prov = $prov; votes = $m.vote_count; score = $m.vote_average; pop = $m.popularity
-      }
-      $m = [pscustomobject]$rec
-      ($m | ConvertTo-Json -Depth 5 -Compress) | Out-File -FilePath $cache -Encoding UTF8
-    }
-    [void]$list.Add($m)
-    if ($n % 50 -eq 0) { Write-Host "  ... $n / $($ids.Count)" }
-  }
-  ($list | ConvertTo-Json -Depth 5 -Compress) | Out-File -FilePath $out -Encoding UTF8
-  Write-Host "  Done $y : $($list.Count) films"
+  Save-Year $ids $out "$y"
 }
 
 # IMDb ratings from the official dataset (datasets.imdbws.com) - refreshed every run

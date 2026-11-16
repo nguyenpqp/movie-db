@@ -4,6 +4,7 @@ Usage (from the repo root):  python scripts/build_data.py
 
 Inputs
   res/data/phim_<year>.json      TMDB records saved by scripts/lay_du_lieu.ps1
+  res/data/phim_vn_<year>.json   Vietnamese-language films, same format plus VN release dates
   res/data/title.ratings.tsv.gz  official IMDb ratings dataset (rating + votes only)
   res/exclusions.json            films excluded by hand, with a reason
   res/extra_films.json           films TMDB discovery missed, added by hand (TMDB data)
@@ -20,8 +21,9 @@ ROOT = pathlib.Path(__file__).resolve().parent.parent
 RES = ROOT / "res"
 DATA = RES / "data"
 THIS_YEAR = datetime.date.today().year
-YEARS = range(2020, THIS_YEAR + 1)
+YEARS = range(2016, THIS_YEAR + 1)
 TODAY = datetime.date.today().isoformat()
+VN_MIN_VOTES = 20
 
 PROVIDERS = [("Netflix", "Netflix"), ("Apple TV+", "Apple TV"), ("Prime Video", "Amazon Prime Video"),
              ("Disney+", "Disney Plus"), ("Hulu", "Hulu"), ("Paramount+", "Paramount")]
@@ -57,9 +59,12 @@ def main():
 
     films = {}
     for y in YEARS:
-        p = DATA / f"phim_{y}.json"
-        for m in as_list(load_json(p, [])):
-            films[m["id"]] = m
+        for name in (f"phim_{y}.json", f"phim_vn_{y}.json"):
+            for m in as_list(load_json(DATA / name, [])):
+                old = films.get(m["id"])
+                # older cached records have no "vn" dates; never let one replace a record that has them
+                if not old or "vn" in m or "vn" not in old:
+                    films[m["id"]] = m
 
     manual = load_json(RES / "exclusions.json", {}).get("exclude", {})
     keep, drop = [], []
@@ -70,7 +75,17 @@ def main():
         # US theatrical dates (limited=2, wide=3), ignoring re-releases of older films
         theatrical = sorted(u["d"][:10] for u in us if u["t"] in (2, 3)
                             and (primary_year is None or int(u["d"][:4]) >= primary_year - 1))
-        if theatrical:
+        if m.get("lang") == "vi":
+            vn = [u for u in as_list(m.get("vn"))
+                  if primary_year is None or int(u["d"][:4]) >= primary_year - 1]
+            # TMDB often lacks typed VN dates: fall back to the premiere date, then the primary release date
+            vn_dates = (sorted(u["d"][:10] for u in vn if u["t"] in (2, 3))
+                        or sorted(u["d"][:10] for u in vn if u["t"] == 1)
+                        or ([m["date"]] if m.get("date") and not vn else []))
+            if not vn_dates:
+                continue
+            kind, date = "Vietnam", vn_dates[0]
+        elif theatrical:
             kind, date = "Theatrical", theatrical[0]
             # limited run + digital within 21 days on a streamer = streaming original
             wide = [u for u in us if u["t"] == 3]
@@ -94,15 +109,19 @@ def main():
             threshold = 500 if chinese else (2000 if year == THIS_YEAR else 5000)
             upcoming_buzz = date >= f"{THIS_YEAR}-10-01" and (m.get("pop") or 0) >= 7
             ok = upcoming_buzz or votes >= threshold
+        elif kind == "Vietnam":
+            ok = votes >= VN_MIN_VOTES
         else:
             ok = votes >= 10000
         if not ok:
             continue
 
         genres = as_list(m.get("genres"))
-        reason = manual.get(m["title"])
+        reason = manual.get(f"{m['title']} ({year})") or manual.get(m["title"])
         if not reason:
             reason = next((GENRE_REASON[g] for g in genres if g in GENRE_REASON), None)
+        if not reason and kind == "Vietnam" and 0 < (m.get("runtime") or 0) < 40:
+            reason = "Re-release / short / TV special"
 
         directors = as_list(m.get("directors"))
         score = round(m["score"] * 10) if m.get("score") else None
