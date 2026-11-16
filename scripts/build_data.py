@@ -76,12 +76,11 @@ def main():
         theatrical = sorted(u["d"][:10] for u in us if u["t"] in (2, 3)
                             and (primary_year is None or int(u["d"][:4]) >= primary_year - 1))
         if m.get("lang") == "vi":
-            vn = [u for u in as_list(m.get("vn"))
-                  if primary_year is None or int(u["d"][:4]) >= primary_year - 1]
-            # TMDB often lacks typed VN dates: fall back to the premiere date, then the primary release date
+            vn = as_list(m.get("vn"))
+            # TMDB often lacks typed VN dates: fall back to the VN premiere date.
+            # No re-release filter: the TMDB primary date of a VN film is often later than its VN release.
             vn_dates = (sorted(u["d"][:10] for u in vn if u["t"] in (2, 3))
-                        or sorted(u["d"][:10] for u in vn if u["t"] == 1)
-                        or ([m["date"]] if m.get("date") and not vn else []))
+                        or sorted(u["d"][:10] for u in vn if u["t"] == 1))
             if not vn_dates:
                 continue
             kind, date = "Vietnam", vn_dates[0]

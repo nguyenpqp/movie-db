@@ -29,7 +29,7 @@ Each candidate's details (`/movie/{id}` with release dates, credits, videos and 
 
 - **Theatrical:** has a US limited or wide release date. Re-releases are ignored: dates earlier than the film's primary year − 1 don't count. The first such date becomes the release date and decides the year.
   - A film with only a limited release, plus a digital release within 21 days on one of the streamers above, is counted as a **streaming original** (e.g. *Netflix*).
-- **Vietnam:** any Vietnamese-language film. The release date is the first VN limited or wide date. If there is none, the first VN premiere date is used. If the film has no VN dates at all, the TMDB primary release date is used. A film with only VN digital/TV dates is dropped.
+- **Vietnam:** any Vietnamese-language film. The release date is the first VN limited or wide date. If there is none, the first VN premiere date is used. A film with no VN dates, or with only VN digital/TV dates, is dropped. The re-release rule above does not apply, because TMDB often gives a later primary date than the VN release.
 - **Streaming:** no US theatrical date, but available on one of the streamers above.
 - Anything else is dropped.
 
